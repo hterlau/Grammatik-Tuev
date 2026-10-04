@@ -1,0 +1,692 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Grammatik-TÜV Latein</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:ital,wght@0,400;0,700;1,400&family=Marcellus&display=swap">
+<style>
+/* Layout: schmale App-Leiste oben, Startseite mit zwei Prüfstationen (Kasus | Tempora), Spielansicht = Spielfläche + Spickzettel rechts (mobil darunter) */
+:root{
+  --bg:#ECEFF4; --surface:#FFFFFF; --sunk:#E2E7EF; --ink:#18202E; --muted:#596479; --line:#CDD5E1;
+  --accent:#2445B0; --accent-ink:#FFFFFF; --accent-soft:#DCE4FA;
+  --ok:#17804F; --ok-soft:#D7F0E3; --bad:#B9312F; --bad-soft:#F8DEDC;
+  --gold:#E9B533; --silver:#C7CDD6; --bronze:#D49A6A; --badge-ink:#18202E;
+  --f-display:"Marcellus","Trajan Pro","Georgia",serif;
+  --f-body:"Atkinson Hyperlegible",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --r:10px;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --bg:#10151E; --surface:#192130; --sunk:#131A26; --ink:#E7ECF4; --muted:#98A3B7; --line:#2B3548;
+  --accent:#86A2FF; --accent-ink:#0E1424; --accent-soft:#24305A;
+  --ok:#52C98F; --ok-soft:#173A2B; --bad:#F27A72; --bad-soft:#47201F;
+  --gold:#F0C24E; --silver:#C9CFD8; --bronze:#DBA477; color-scheme:dark;
+}}
+:root[data-theme="dark"]{
+  --bg:#10151E; --surface:#192130; --sunk:#131A26; --ink:#E7ECF4; --muted:#98A3B7; --line:#2B3548;
+  --accent:#86A2FF; --accent-ink:#0E1424; --accent-soft:#24305A;
+  --ok:#52C98F; --ok-soft:#173A2B; --bad:#F27A72; --bad-soft:#47201F;
+  --gold:#F0C24E; --silver:#C9CFD8; --bronze:#DBA477; color-scheme:dark;
+}
+*{box-sizing:border-box}
+html,body{margin:0}
+[hidden]{display:none!important}
+body{background:var(--bg);color:var(--ink);font-family:var(--f-body);font-size:17px;line-height:1.5}
+button{font:inherit;color:inherit;cursor:pointer}
+button:focus-visible,input:focus-visible,a:focus-visible,summary:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+.wrap{max-width:1120px;margin:0 auto;padding-inline:16px;padding-block:0 48px}
+
+.top{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;padding-block:16px;border-bottom:1px solid var(--line);margin-bottom:24px}
+.brand{display:flex;align-items:center;gap:10px;background:none;border:0;padding:0;text-align:left}
+.brand-mark{width:40px;height:40px;flex:none}
+.brand b{font-family:var(--f-display);font-weight:400;font-size:1.45rem;letter-spacing:.02em;display:block;line-height:1.1}
+.brand small{color:var(--muted);font-size:.8rem;letter-spacing:.08em;text-transform:uppercase}
+.nav{display:flex;gap:6px;flex-wrap:wrap}
+.nav button{border:1px solid var(--line);background:var(--surface);border-radius:999px;padding:6px 12px;font-size:.88rem}
+.nav button[aria-current="page"]{background:var(--accent);color:var(--accent-ink);border-color:var(--accent)}
+
+.intro{max-width:62ch;margin-bottom:28px}
+.intro h1{font-family:var(--f-display);font-weight:400;font-size:clamp(1.8rem,4vw,2.6rem);line-height:1.15;margin:0 0 8px;text-wrap:balance}
+.intro p{margin:0;color:var(--muted)}
+.stations{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,460px),1fr));gap:20px}
+.station{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:20px;display:flex;flex-direction:column;gap:14px}
+.station h2{font-family:var(--f-display);font-weight:400;font-size:1.5rem;margin:0}
+.station > p{margin:0;color:var(--muted)}
+.games{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+@media (max-width:560px){.games{grid-template-columns:1fr}}
+.gamecard{border:1px solid var(--line);background:var(--sunk);border-radius:var(--r);padding:14px;text-align:left;display:flex;flex-direction:column;gap:6px;transition:transform .15s,border-color .15s}
+.gamecard:hover{border-color:var(--accent);transform:translateY(-2px)}
+.gamecard .kind{font-size:.72rem;letter-spacing:.1em;text-transform:uppercase;color:var(--accent);font-weight:700}
+.gamecard strong{font-size:1.1rem}
+.gamecard span.d{color:var(--muted);font-size:.92rem;line-height:1.4}
+.gamecard .best{font-size:.8rem;color:var(--muted);margin-top:auto}
+
+.game{display:grid;grid-template-columns:minmax(0,1fr) 300px;gap:24px;align-items:start}
+@media (max-width:900px){.game{grid-template-columns:1fr}}
+.ghead{display:flex;align-items:flex-end;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-bottom:14px}
+.ghead h1{font-family:var(--f-display);font-weight:400;font-size:clamp(1.5rem,3.4vw,2rem);margin:0;line-height:1.15}
+.ghead .kind{font-size:.75rem;letter-spacing:.1em;text-transform:uppercase;color:var(--accent);font-weight:700}
+.hud{display:flex;gap:8px;flex-wrap:wrap}
+.hud .pill{background:var(--surface);border:1px solid var(--line);border-radius:999px;padding:4px 12px;font-size:.88rem;font-variant-numeric:tabular-nums;white-space:nowrap}
+.panel{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:20px}
+.task-intro{color:var(--muted);margin:0 0 14px}
+.settings{margin-bottom:14px;border:1px dashed var(--line);border-radius:var(--r);padding:8px 12px;background:var(--surface)}
+.settings summary{cursor:pointer;font-size:.92rem;color:var(--muted)}
+.settings .opts{display:flex;flex-wrap:wrap;gap:8px 18px;padding-block:10px 4px}
+.settings label{display:flex;align-items:center;gap:6px;font-size:.92rem}
+.settings input{width:18px;height:18px;accent-color:var(--accent)}
+.settings .grp{width:100%;font-size:.75rem;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin-top:4px}
+
+.btn{border:0;border-radius:var(--r);padding:10px 18px;font-weight:700;background:var(--accent);color:var(--accent-ink);min-height:44px}
+.btn.ghost{background:transparent;color:var(--ink);border:1px solid var(--line);font-weight:400}
+.btn:disabled{opacity:.45;cursor:not-allowed}
+.actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:16px}
+
+.cheat{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:16px;font-size:.9rem}
+.cheat h3{font-family:var(--f-display);font-weight:400;font-size:1.2rem;margin:0 0 8px}
+.cheat p{margin:8px 0;color:var(--muted)}
+.cheat table{width:100%;border-collapse:collapse;font-size:.85rem}
+.cheat th,.cheat td{text-align:left;padding:5px 4px;border-bottom:1px solid var(--line);vertical-align:top}
+.cheat th{font-size:.7rem;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);font-weight:700}
+.cheat .tw{overflow-x:auto}
+
+/* Kasus-Paare: deutsche Karten in lateinische Kästen sortieren */
+.pool{display:flex;flex-wrap:wrap;gap:8px;padding:12px;border-radius:var(--r);background:var(--sunk);min-height:64px;margin-bottom:16px}
+.gcard{border:2px solid var(--line);background:var(--surface);border-radius:var(--r);padding:8px 14px;font-weight:700;min-height:44px}
+.gcard:hover{border-color:var(--accent)}
+.gcard[aria-pressed="true"]{border-color:var(--accent);background:var(--accent);color:var(--accent-ink)}
+.gcard.wrong{border-color:var(--bad);animation:shake .35s}
+.boxes{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,220px),1fr));gap:12px}
+.lbox{border:2px solid var(--line);border-radius:12px;background:var(--surface);padding:12px;text-align:left;display:flex;flex-direction:column;gap:8px;transition:border-color .12s}
+.lbox:hover:not(.full){border-color:var(--accent)}
+.lbox.full{border-color:var(--ok)}
+.lbox.wrong{border-color:var(--bad);animation:shake .35s}
+.lbox .lat{font-family:var(--f-display);font-size:1.5rem;line-height:1.1}
+.lbox .cnt{font-size:.8rem;color:var(--muted)}
+.slot{border:2px dashed var(--line);border-radius:8px;padding:6px 10px;min-height:42px;display:flex;flex-direction:column;justify-content:center;font-size:.95rem}
+.slot.filled{border-style:solid;border-color:var(--ok);background:var(--ok-soft)}
+.slot .g{font-weight:700}
+.slot .d{font-size:.78rem;color:var(--muted)}
+@keyframes shake{0%,100%{transform:translateX(0)}25%{transform:translateX(-5px)}75%{transform:translateX(5px)}}
+
+/* Kasus-Baukasten */
+.prompt{display:flex;flex-wrap:wrap;align-items:baseline;gap:6px 14px;margin-bottom:6px}
+.prompt .bigform{font-family:var(--f-display);font-size:clamp(2rem,6vw,2.8rem);line-height:1.1}
+.tag{display:inline-block;background:var(--accent-soft);color:var(--ink);border-radius:999px;padding:3px 12px;font-weight:700;font-size:.95rem}
+.lemma{color:var(--muted);margin-bottom:14px}
+.slots{display:flex;flex-direction:column;gap:8px;margin-bottom:6px}
+.srow{display:grid;grid-template-columns:minmax(120px,180px) minmax(0,1fr);gap:4px 12px;align-items:center;border:2px solid var(--line);border-radius:var(--r);padding:8px 12px;background:var(--sunk);text-align:left;width:100%}
+@media (max-width:520px){.srow{grid-template-columns:1fr}}
+.srow .sl{font-size:.85rem;color:var(--muted);font-weight:700}
+.srow .sv{font-size:1.25rem;font-weight:700;min-height:1.6em}
+.srow .sv .ph{color:var(--muted);font-weight:400;font-size:1rem}
+.srow.active{border-color:var(--accent);background:var(--accent-soft)}
+.srow.ok{border-color:var(--ok);background:var(--ok-soft)}
+.srow.bad{border-color:var(--bad);background:var(--bad-soft)}
+.srow input{font:inherit;font-size:1.15rem;padding:8px 10px;border-radius:8px;border:2px solid var(--line);background:var(--surface);color:var(--ink);width:100%;min-width:0}
+.row{margin-top:12px}
+.row .rl{font-size:.75rem;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);font-weight:700;margin-bottom:6px}
+.chips{display:flex;flex-wrap:wrap;gap:8px}
+.chip{border:2px solid var(--line);background:var(--sunk);border-radius:999px;padding:6px 14px;min-height:42px;min-width:44px}
+.chip[aria-pressed="true"]{background:var(--accent);border-color:var(--accent);color:var(--accent-ink);font-weight:700}
+.modeswitch{display:flex;gap:6px;margin-bottom:10px;flex-wrap:wrap}
+.textin{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-top:16px}
+.textin .pre{font-size:1.25rem;font-weight:700}
+.textin input{flex:1 1 220px;min-width:0;font:inherit;font-size:1.25rem;padding:10px 12px;border-radius:var(--r);border:2px solid var(--line);background:var(--sunk);color:var(--ink)}
+.umlauts{display:flex;gap:6px;margin-top:8px;flex-wrap:wrap}
+.umlauts button{border:1px solid var(--line);background:var(--surface);border-radius:8px;min-width:44px;min-height:40px}
+
+.fb{margin-top:16px;border-radius:var(--r);padding:12px 14px;line-height:1.45}
+.fb.ok{background:var(--ok-soft);border-left:5px solid var(--ok)}
+.fb.bad{background:var(--bad-soft);border-left:5px solid var(--bad)}
+.fb.info{background:var(--accent-soft);border-left:5px solid var(--accent)}
+.fb b.big{font-size:1.1rem}
+.fb ul{margin:6px 0 0;padding-left:20px}
+
+/* Zeitrennen */
+.formcard{text-align:center;padding:26px 12px;border-radius:14px;background:var(--sunk);border:2px solid var(--line);margin-bottom:16px;transition:background .15s,border-color .15s}
+.formcard .f{font-size:clamp(1.6rem,5.5vw,2.4rem);font-weight:700;line-height:1.2}
+.formcard .s{color:var(--muted);font-size:.9rem;margin-top:4px}
+.formcard.ok{background:var(--ok-soft);border-color:var(--ok)}
+.formcard.bad{background:var(--bad-soft);border-color:var(--bad)}
+.zones{display:flex;flex-wrap:wrap;gap:12px}
+.zone.past{flex:3 1 440px}.zone.now{flex:1 1 150px}.zone.fut{flex:2 1 300px}
+.zone{border-top:4px solid var(--line);padding-top:6px;min-width:0}
+.zone.past{border-color:var(--bronze)} .zone.now{border-color:var(--accent)} .zone.fut{border-color:var(--ok)}
+.zone .zl{font-size:.72rem;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);font-weight:700;margin-bottom:6px}
+.zone .zb{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:8px}
+.tgrp{border:1px solid var(--line);border-radius:var(--r);padding:6px;background:var(--surface);display:flex;flex-direction:column;gap:6px}
+.tgrp .tn{font-weight:700;font-size:.9rem;text-align:center}
+.tgrp .tb{display:grid;grid-template-columns:1fr 1fr;gap:6px}
+.tbtn{border:2px solid var(--line);background:var(--sunk);border-radius:8px;padding:8px 4px;font-size:.88rem;min-height:44px}
+.tbtn.solo{font-weight:700;font-size:.95rem;min-height:54px}
+.tbtn:hover:not(:disabled){border-color:var(--accent)}
+.tbtn:disabled{opacity:.35;cursor:not-allowed}
+.timebar{height:8px;border-radius:99px;background:var(--sunk);overflow:hidden;margin-bottom:14px}
+.timebar i{display:block;height:100%;background:var(--accent);transition:width .1s linear}
+.timebar.low i{background:var(--bad)}
+.startbox{display:flex;flex-direction:column;align-items:flex-start;gap:12px}
+
+.transform{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:6px}
+.transform .src{font-size:clamp(1.4rem,4.5vw,1.9rem);font-weight:700}
+.transform .arrow{font-size:1.6rem;color:var(--muted)}
+
+.result{display:flex;gap:24px;align-items:center;flex-wrap:wrap}
+.result svg{width:150px;height:150px;flex:none;animation:pop .6s cubic-bezier(.2,1.6,.4,1)}
+@keyframes pop{from{transform:scale(.4) rotate(-40deg);opacity:0}to{transform:none;opacity:1}}
+.result h2{font-family:var(--f-display);font-weight:400;font-size:1.7rem;margin:0 0 6px}
+.result p{margin:4px 0;color:var(--muted)}
+.result .txt{flex:1 1 240px;min-width:0}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="top">
+    <button class="brand" data-go="start" aria-label="Zur Startseite">
+      <svg class="brand-mark" viewBox="0 0 40 40" aria-hidden="true"><circle cx="20" cy="20" r="19" fill="var(--gold)"/><circle cx="20" cy="20" r="11" fill="var(--surface)"/><g fill="var(--badge-ink)" font-size="5" font-family="Atkinson Hyperlegible,sans-serif" text-anchor="middle"><text x="20" y="6.5">12</text><text x="34" y="21.5">3</text><text x="20" y="37">6</text><text x="6" y="21.5">9</text></g><text x="20" y="24" text-anchor="middle" font-family="Marcellus,serif" font-size="11" fill="var(--ink)">L</text></svg>
+      <span><b>Grammatik-TÜV</b><small>Latein · Deutsch richtig übersetzen</small></span>
+    </button>
+    <nav class="nav" aria-label="Spiele">
+      <button data-go="kasus-paare">Kasus-Paare</button>
+      <button data-go="kasus-bau">Kasus-Baukasten</button>
+      <button data-go="zeit-rennen">Zeitrennen</button>
+      <button data-go="zeit-wandler">Zeitverwandler</button>
+    </nav>
+  </header>
+  <main id="view"></main>
+</div>
+
+<script>
+/* ===================== Daten: Substantive ===================== */
+const CASES=[
+ {k:'Nom',n:'Nominativ',q:'Wer oder was?'},
+ {k:'Gen',n:'Genitiv',q:'Wessen?'},
+ {k:'Dat',n:'Dativ',q:'Wem?'},
+ {k:'Akk',n:'Akkusativ',q:'Wen oder was?'},
+ {k:'Abl',n:'Ablativ',q:'Womit? Wodurch? Von wem?'}];
+const NUMN={Sg:'Singular',Pl:'Plural'};
+const PL_ART=['die','der','den','die'];
+const N=(id,artSg,nSg,nPl)=>({id,art:{Sg:artSg.split(' '),Pl:PL_ART},n:{Sg:nSg.split(' '),Pl:nPl.split(' ')}});
+const NOUNS=[
+ N('freundin','die der der die','Freundin Freundin Freundin Freundin','Freundinnen Freundinnen Freundinnen Freundinnen'),
+ N('maedchen','das des dem das','Mädchen Mädchens Mädchen Mädchen','Mädchen Mädchen Mädchen Mädchen'),
+ N('landhaus','das des dem das','Landhaus Landhauses Landhaus Landhaus','Landhäuser Landhäuser Landhäusern Landhäuser'),
+ N('sklave','der des dem den','Sklave Sklaven Sklaven Sklaven','Sklaven Sklaven Sklaven Sklaven'),
+ N('mensch','der des dem den','Mensch Menschen Menschen Menschen','Menschen Menschen Menschen Menschen'),
+ N('freund','der des dem den','Freund Freundes Freund Freund','Freunde Freunde Freunden Freunde'),
+ N('bote','der des dem den','Bote Boten Boten Boten','Boten Boten Boten Boten'),
+ N('tempel','der des dem den','Tempel Tempels Tempel Tempel','Tempel Tempel Tempeln Tempel'),
+ N('senator','der des dem den','Senator Senators Senator Senator','Senatoren Senatoren Senatoren Senatoren'),
+ N('mutter','die der der die','Mutter Mutter Mutter Mutter','Mütter Mütter Müttern Mütter'),
+ N('koenig','der des dem den','König Königs König König','Könige Könige Königen Könige'),
+ N('loewe','der des dem den','Löwe Löwen Löwen Löwen','Löwen Löwen Löwen Löwen'),
+ N('name','der des dem den','Name Namens Namen Namen','Namen Namen Namen Namen'),
+ N('soldat','der des dem den','Soldat Soldaten Soldaten Soldaten','Soldaten Soldaten Soldaten Soldaten'),
+ N('stadt','die der der die','Stadt Stadt Stadt Stadt','Städte Städte Städten Städte'),
+ N('gott','der des dem den','Gott Gottes Gott Gott','Götter Götter Göttern Götter'),
+ N('volk','das des dem das','Volk Volkes Volk Volk','Völker Völker Völkern Völker')
+];
+// seltene, aber zulässige Nebenformen (werden als richtig gewertet)
+const RARE=new Set();
+const GENUS={der:'maskulin',die:'feminin',das:'neutrum'};
+const nounTitle=n=>n.art.Sg[0]+' '+n.n.Sg[0];
+
+/* ===================== Daten: Verben ===================== */
+const TENSES=['Präsens','Präteritum','Perfekt','Plusquamperfekt','Futur I','Futur II'];
+const RULE={
+ A:['Verbstamm + Personalendung','schwach: Stamm + -te- + Endung · stark: Vokalwechsel','Präsens von haben/sein + Partizip II','Präteritum von haben/sein + Partizip II','Präsens von werden + Infinitiv','Präsens von werden + Partizip II + haben/sein'],
+ P:['Präsens von werden + Partizip II','Präteritum von werden + Partizip II','Präsens von sein + Partizip II + worden','Präteritum von sein + Partizip II + worden','Präsens von werden + Partizip II + werden','Präsens von werden + Partizip II + worden sein']};
+const LAT={A:['vocat','vocabat · vocavit','vocavit','vocaverat','vocabit','vocaverit'],P:['vocatur','vocabatur · vocatus est','vocatus est','vocatus erat','vocabitur','vocatus erit']};
+const GN={A:'Aktiv',P:'Passiv'};
+const HABEN={pr:'habe hast hat haben habt haben'.split(' '),pt:'hatte hattest hatte hatten hattet hatten'.split(' ')};
+const SEIN={pr:'bin bist ist sind seid sind'.split(' '),pt:'war warst war waren wart waren'.split(' ')};
+const WERDEN={pr:'werde wirst wird werden werdet werden'.split(' '),pt:'wurde wurdest wurde wurden wurdet wurden'.split(' ')};
+const V=(inf,lat,pr,pt,p2,sein,trans)=>({inf,lat,pr:pr.split(' '),pt:pt.split(' '),p2,sein,trans});
+const VERBS=[
+ V('rufen','vocare','rufe rufst ruft rufen ruft rufen','rief riefst rief riefen rieft riefen','gerufen',false,true),
+ V('loben','laudare','lobe lobst lobt loben lobt loben','lobte lobtest lobte lobten lobtet lobten','gelobt',false,true),
+ V('sehen','videre','sehe siehst sieht sehen seht sehen','sah sahst sah sahen saht sahen','gesehen',false,true),
+ V('hören','audire','höre hörst hört hören hört hören','hörte hörtest hörte hörten hörtet hörten','gehört',false,true),
+ V('retten','servare','rette rettest rettet retten rettet retten','rettete rettetest rettete retteten rettetet retteten','gerettet',false,true),
+ V('besiegen','vincere','besiege besiegst besiegt besiegen besiegt besiegen','besiegte besiegtest besiegte besiegten besiegtet besiegten','besiegt',false,true),
+ V('schicken','mittere','schicke schickst schickt schicken schickt schicken','schickte schicktest schickte schickten schicktet schickten','geschickt',false,true),
+ V('fragen','rogare','frage fragst fragt fragen fragt fragen','fragte fragtest fragte fragten fragtet fragten','gefragt',false,true),
+ V('mahnen','monere','mahne mahnst mahnt mahnen mahnt mahnen','mahnte mahntest mahnte mahnten mahntet mahnten','gemahnt',false,true),
+ V('fangen','capere','fange fängst fängt fangen fangt fangen','fing fingst fing fingen fingt fingen','gefangen',false,true),
+ V('kommen','venire','komme kommst kommt kommen kommt kommen','kam kamst kam kamen kamt kamen','gekommen',true,false),
+ V('laufen','currere','laufe läufst läuft laufen lauft laufen','lief liefst lief liefen lieft liefen','gelaufen',true,false),
+ V('gehen','ire','gehe gehst geht gehen geht gehen','ging gingst ging gingen gingt gingen','gegangen',true,false),
+ V('bleiben','manere','bleibe bleibst bleibt bleiben bleibt bleiben','blieb bliebst blieb blieben bliebt blieben','geblieben',true,false),
+ V('schreiben','scribere','schreibe schreibst schreibt schreiben schreibt schreiben','schrieb schriebst schrieb schrieben schriebt schrieben','geschrieben',false,false),
+ V('arbeiten','laborare','arbeite arbeitest arbeitet arbeiten arbeitet arbeiten','arbeitete arbeitetest arbeitete arbeiteten arbeitetet arbeiteten','gearbeitet',false,false)
+];
+const PERS=['1. Pers. Sg.','2. Pers. Sg.','3. Pers. Sg.','1. Pers. Pl.','2. Pers. Pl.','3. Pers. Pl.'];
+function pron(p){return p===2?pick(['er','sie','es']):['ich','du',null,'wir','ihr','sie'][p];}
+function conj(v,t,p,g,swapAux,geworden){
+  if(g==='P'){const w=geworden?'geworden':'worden';
+    switch(t){case 0:return WERDEN.pr[p]+' '+v.p2;case 1:return WERDEN.pt[p]+' '+v.p2;case 2:return (swapAux?HABEN:SEIN).pr[p]+' '+v.p2+' '+w;case 3:return (swapAux?HABEN:SEIN).pt[p]+' '+v.p2+' '+w;case 4:return WERDEN.pr[p]+' '+v.p2+' werden';case 5:return WERDEN.pr[p]+' '+v.p2+' '+w+' sein';}}
+  const sein=swapAux?!v.sein:v.sein;const aux=sein?SEIN:HABEN;
+  switch(t){case 0:return v.pr[p];case 1:return v.pt[p];case 2:return aux.pr[p]+' '+v.p2;case 3:return aux.pt[p]+' '+v.p2;case 4:return WERDEN.pr[p]+' '+v.inf;case 5:return WERDEN.pr[p]+' '+v.p2+' '+(sein?'sein':'haben');}
+}
+
+/* ===================== Hilfen ===================== */
+const view=document.getElementById('view');
+const shuffle=a=>{a=a.slice();for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];}return a;};
+const pick=a=>a[Math.floor(Math.random()*a.length)];
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+let timers=[];
+function clearTimers(){timers.forEach(t=>{clearInterval(t);clearTimeout(t);});timers=[];}
+const store={get(k,d){try{const v=localStorage.getItem('gtuev-'+k);return v==null?d:Object.assign(Array.isArray(d)?[]:{},d,JSON.parse(v));}catch(e){return d;}},set(k,v){try{localStorage.setItem('gtuev-'+k,JSON.stringify(v));}catch(e){}}};
+const best=(k)=>{try{return +localStorage.getItem('gtuev-'+k)||0;}catch(e){return 0;}};
+const setBest=(k,v)=>{try{localStorage.setItem('gtuev-'+k,String(v));}catch(e){}};
+
+/* Einstellungen */
+const KS=store.get('kasus-v3',{abl:true});
+const S1=store.get('rennen-v2',{t:[true,true,true,true,true,true],pas:true});
+const S2=store.get('wandler-v2',{t:[true,true,true,true,true],pas:true,plq:true});
+function caseOn(c){return c<4||(c===4&&KS.abl);}
+function readingsFor(noun){const r=[];for(const num of ['Sg','Pl'])for(let c=0;c<5;c++)if(caseOn(c))r.push({noun,c,num});return r;}
+function formsOf(noun){const m=new Map();for(const r of readingsFor(noun)){const f=gerCanon(r);if(!m.has(f))m.set(f,[]);m.get(f).push(r);}return [...m].map(([ger,dets])=>({ger,dets}));}
+function gerVariants(r){
+  const A=r.noun.art[r.num],W=r.noun.n[r.num];
+  if(r.c<4)return[A[r.c]+' '+W[r.c]].concat(((r.noun.alt||{})[r.num]||{})[r.c]?r.noun.alt[r.num][r.c].map(w=>A[r.c]+' '+w):[]);
+  return['mit '+A[2]+' '+W[2],'von '+A[2]+' '+W[2],'durch '+A[3]+' '+W[3]];
+}
+const gerCanon=r=>gerVariants(r)[0];
+const detLabel=r=>CASES[r.c].n+' '+NUMN[r.num];
+const detShort=r=>CASES[r.c].k+'. '+r.num+'.';
+const joinOr=a=>a.length<2?a.join(''):a.slice(0,-1).join(', ')+' oder '+a[a.length-1];
+
+function settingsKasus(){
+  return `<details class="settings"><summary>Einstellungen für die Lehrkraft</summary><div class="opts">
+  <div class="grp">Kasus</div><label><input type="checkbox" id="ks-abl" data-ks="abl" ${KS.abl?'checked':''}> Ablativ-Übersetzung (mit / von / durch)</label></div></details>`;
+}
+function settingsTempus(S,key,count){
+  return `<details class="settings"><summary>Einstellungen für die Lehrkraft</summary><div class="opts"><div class="grp">Zeiten im Spiel</div>
+  ${TENSES.slice(0,count).map((t,i)=>`<label><input type="checkbox" id="${key}-t${i}" data-tt="${i}" ${S.t[i]?'checked':''}> ${t}</label>`).join('')}
+  <div class="grp">Weitere Optionen</div><label><input type="checkbox" id="${key}-pas" data-to="pas" ${S.pas?'checked':''}> Passivformen</label>
+  ${'plq' in S?`<label><input type="checkbox" id="${key}-plq" data-to="plq" ${S.plq?'checked':''}> Plusquamperfekt häufiger abfragen</label>`:''}</div></details>`;
+}
+function bindSettings(restart,S,key){
+  view.querySelectorAll('[data-ks]').forEach(el=>el.addEventListener('change',()=>{
+    KS[el.dataset.ks]=el.checked;
+    store.set('kasus-v3',KS);restart();}));
+  view.querySelectorAll('[data-tt]').forEach(el=>el.addEventListener('change',()=>{
+    S.t[+el.dataset.tt]=el.checked;
+    if(S.t.filter(Boolean).length<2){S.t[+el.dataset.tt]=true;el.checked=true;}
+    store.set(key,S);restart();}));
+  view.querySelectorAll('[data-to]').forEach(el=>el.addEventListener('change',()=>{S[el.dataset.to]=el.checked;store.set(key,S);restart();}));
+}
+
+/* Spickzettel */
+// Beispielwort im Spickzettel: gleiches Geschlecht wie das abgefragte Wort, aber nie dasselbe Wort
+const CHEAT_EX={der:['sklave','soldat'],die:['freundin','stadt'],das:['volk','landhaus']};
+function cheatNoun(q){const ids=CHEAT_EX[q?q.art.Sg[0]:'der'];const id=ids.find(i=>!q||i!==q.id);return NOUNS.find(x=>x.id===id);}
+function setCheat(q){const el=document.getElementById('cheat');if(el)el.outerHTML=cheatKasus(q);}
+function cheatNotes(q,n){
+  const not=id=>!q||q.id!==id;const N_=id=>NOUNS.find(x=>x.id===id);
+  const amb=formsOf(n).filter(f=>f.dets.length>1&&f.dets[0].c<4).slice(0,2).map(f=>`„${esc(f.ger)}“ = ${f.dets.map(detLabel).join(' <u>oder</u> ')}`);
+  const datPl=['mutter','gott','freund','koenig'].filter(not).slice(0,2).map(id=>esc(gerCanon({noun:N_(id),c:2,num:'Pl'})));
+  const weak=['sklave','mensch','bote','soldat'].filter(not).slice(0,2).map(id=>{const x=N_(id);return `${esc(nounTitle(x))} → des/dem/den ${esc(x.n.Sg[1])}`;});
+  return `${amb.length?`<p><b>Mehrdeutig!</b> Viele deutsche Formen passen zu mehreren Kasus: ${amb.join('; ')}. Denk immer an alle.</p>`:''}
+  ${KS.abl?'<p><b>Ablativ</b> gibt es im Deutschen nicht. Übersetze mit einer Präposition: <i>mit</i> oder <i>von</i> + Dativ, <i>durch</i> + Akkusativ.</p>':''}
+  <p><b>Stolperfallen:</b> Dativ Plural endet fast immer auf <b>-n</b> (${datPl.join(', ')}). Manche Wörter enden außer im Nominativ Singular immer auf <b>-(e)n</b>: ${weak.join(', ')}.</p>`;
+}
+function cheatKasus(q){
+  const n=cheatNoun(q);
+  const rows=[0,1,2,3,4].filter(caseOn).map(c=>`<tr><td><b>${CASES[c].n}</b><br><span style="color:var(--muted)">${CASES[c].q}</span></td><td>${esc(gerCanon({noun:n,c,num:'Sg'}))}</td><td>${esc(gerCanon({noun:n,c,num:'Pl'}))}</td></tr>`).join('');
+  return `<aside class="cheat" id="cheat"><h3>Spickzettel</h3><p style="margin-top:0">Beispiel: <b style="color:var(--ink)">${esc(nounTitle(n))}</b> (${GENUS[n.art.Sg[0]]})</p><div class="tw"><table><thead><tr><th>Kasus</th><th>Singular</th><th>Plural</th></tr></thead><tbody>${rows}</tbody></table></div>
+  ${cheatNotes(q,n)}</aside>`;
+}
+function cheatTempus(withF2){
+  const v=VERBS[0];const n=withF2?6:5;
+  return `<aside class="cheat"><h3>Spickzettel</h3><div class="tw"><table><thead><tr><th>Zeit</th><th>Aktiv</th><th>Passiv</th></tr></thead><tbody>
+  ${TENSES.slice(0,n).map((t,i)=>`<tr><td><b>${t}</b></td><td>er ${conj(v,i,2,'A')}<br><i style="color:var(--muted)">${LAT.A[i]}</i></td><td>er ${conj(v,i,2,'P')}<br><i style="color:var(--muted)">${LAT.P[i]}</i></td></tr>`).join('')}</tbody></table></div>
+  <p><b>Achtung Verwechslung:</b> „er wird rufen“ ist Futur I Aktiv, „er wird gerufen“ ist Präsens Passiv.</p>
+  <p><b>Im Passiv</b> heißt es „worden“, nicht „geworden“: er ist gerufen worden.</p>
+  <p><b>Mit sein</b> bilden Verben der Bewegung und Zustandsänderung das Perfekt Aktiv: kommen, gehen, laufen, bleiben.</p></aside>`;
+}
+
+/* Prüfplakette */
+function badge(pct){
+  const lvl=pct>=.85?['var(--gold)','Gold']:pct>=.6?['var(--silver)','Silber']:['var(--bronze)','Bronze'];
+  const yr=String(new Date().getFullYear()).slice(-2);
+  let nums='';for(let m=1;m<=12;m++){const a=(m/12)*2*Math.PI-Math.PI/2;nums+=`<text x="${(60+47*Math.cos(a)).toFixed(1)}" y="${(64+47*Math.sin(a)).toFixed(1)}">${m}</text>`;}
+  return {lvl:lvl[1],svg:`<svg viewBox="0 0 120 120" role="img" aria-label="Prüfplakette ${lvl[1]}"><circle cx="60" cy="60" r="58" fill="${lvl[0]}"/><g font-family="Atkinson Hyperlegible,sans-serif" font-size="10" font-weight="700" text-anchor="middle" fill="var(--badge-ink)">${nums}</g><circle cx="60" cy="60" r="35" fill="var(--surface)" stroke="var(--badge-ink)" stroke-width="1.5"/><text x="60" y="58" text-anchor="middle" font-family="Marcellus,serif" font-size="22" fill="var(--ink)">${yr}</text><text x="60" y="74" text-anchor="middle" font-family="Atkinson Hyperlegible,sans-serif" font-size="9" letter-spacing="1" fill="var(--muted)">GEPRÜFT</text></svg>`};
+}
+function resultPanel(pct,title,lines,again){
+  const b=badge(pct);
+  return `<div class="panel"><div class="result">${b.svg}<div class="txt"><h2>${title}</h2><p><b style="color:var(--ink)">Plakette in ${b.lvl}</b> – ${Math.round(pct*100)} % richtig.</p>${lines.map(l=>`<p>${l}</p>`).join('')}
+  <div class="actions"><button class="btn" id="again">${again}</button><button class="btn ghost" data-go="start">Zur Übersicht</button></div></div></div></div>`;
+}
+function shell(o){
+  return `<div class="ghead"><div><div class="kind">${o.kind}</div><h1>${o.title}</h1></div><div class="hud" id="hud"></div></div>
+  <div class="game"><div>${o.settings}<div id="stage"></div></div>${o.cheat}</div>`;
+}
+const pill=(l,v)=>`<span class="pill">${l} <b>${v}</b></span>`;
+function bestLine(key,score){const b=best(key);if(score>b){setBest(key,score);return 'Neuer Bestwert auf diesem Gerät!';}return `Bestwert auf diesem Gerät: ${b} Punkte.`;}
+
+/* ===================== Spiel 1: Kasus-Paare ===================== */
+const K1={
+ start(){
+   K1.st={round:0,rounds:5,score:0,streak:0,hits:0,miss:0,t0:Date.now(),lastNoun:null};
+   view.innerHTML=shell({kind:'Kasus · Zuordnen',title:'Kasus-Paare',settings:settingsKasus(),cheat:cheatKasus()});
+   bindSettings(K1.start);K1.next();timers.push(setInterval(K1.hud,1000));
+ },
+ gen(){
+   const s=K1.st,pool=NOUNS;let n,g=0;
+   do{n=pick(pool);g++;}while(n===s.lastNoun&&g<20);s.lastNoun=n;
+   const map=formsOf(n);const amb=shuffle(map.filter(f=>f.dets.length>1)),one=shuffle(map.filter(f=>f.dets.length===1));
+   const chosen=[];let cards=0;const add=f=>{if(f.dets[0].c===4&&chosen.some(x=>x.dets[0].c===4))return;if(chosen.length<4&&cards+f.dets.length<=9&&!chosen.includes(f)){chosen.push(f);cards+=f.dets.length;}};
+   amb.slice(0,2+(Math.random()<.5?1:0)).forEach(add);one.forEach(add);amb.forEach(add);
+   return {noun:n,boxes:shuffle(chosen).map(f=>({ger:f.ger,slots:f.dets.map(r=>({r,filled:false}))})),cards:shuffle(chosen.flatMap(f=>f.dets.map(r=>({r,text:detLabel(r),used:false}))))};
+ },
+ next(){const s=K1.st;if(s.round>=s.rounds)return K1.end();s.round++;s.R=K1.gen();s.sel=null;s.fb='';setCheat(s.R.noun);K1.render();K1.hud();},
+ hud(){const s=K1.st;const h=document.getElementById('hud');if(!s||!h)return;const sec=Math.floor((Date.now()-s.t0)/1000);
+   h.innerHTML=pill('Runde',s.round+'/'+s.rounds)+pill('Punkte',s.score)+pill('Serie',s.streak)+pill('Zeit',Math.floor(sec/60)+':'+String(sec%60).padStart(2,'0'));},
+ render(){
+   const s=K1.st,R=s.R,n=R.noun;
+   const pool=R.cards.map((c,i)=>c.used?'':`<button class="gcard" data-c="${i}" aria-pressed="${s.sel===i}">${esc(c.text)}</button>`).join('');
+   const boxes=R.boxes.map((b,i)=>{const full=b.slots.every(x=>x.filled);
+     return `<button class="lbox ${full?'full':''}" data-b="${i}"><span class="lat">${esc(b.ger)}</span><span class="cnt">${b.slots.length===1?'1 Bestimmung':b.slots.length+' Bestimmungen'}</span>
+     ${b.slots.map(x=>x.filled?`<span class="slot filled"><span class="g">${detLabel(x.r)}</span></span>`:`<span class="slot"><span class="d">?</span></span>`).join('')}</button>`;}).join('');
+   document.getElementById('stage').innerHTML=`<div class="panel"><p class="task-intro">Alle Formen gehören zu <b>${nounTitle(n)}</b>. Tippe eine Bestimmung an und dann die deutsche Form, zu der sie passt. Manche Formen passen zu <b>mehreren Kasus</b> – finde alle.</p>
+   <div class="pool" aria-label="Bestimmungen">${pool||'<span style="color:var(--muted)">Alle Bestimmungen sind verteilt.</span>'}</div>
+   <div class="boxes">${boxes}</div><div id="fb">${s.fb}</div></div>`;
+   view.querySelectorAll('[data-c]').forEach(b=>b.onclick=()=>{s.sel=s.sel===+b.dataset.c?null:+b.dataset.c;s.fb='';K1.render();});
+   view.querySelectorAll('[data-b]').forEach(b=>b.onclick=()=>K1.place(+b.dataset.b));
+ },
+ place(bi){
+   const s=K1.st,R=s.R,box=R.boxes[bi];
+   if(s.sel==null){s.fb=`<div class="fb info">Tippe zuerst oben eine Bestimmung an.</div>`;return K1.render();}
+   const card=R.cards[s.sel];
+   const slot=box.slots.find(x=>!x.filled&&x.r===card.r);
+   if(slot){
+     slot.filled=true;card.used=true;s.sel=null;s.hits++;s.streak++;s.score+=10+Math.min(s.streak-1,5)*2;
+     const rest=box.slots.filter(x=>!x.filled).length;
+     s.fb=`<div class="fb ok">Richtig: <b>${esc(box.ger)}</b> ist ${detLabel(slot.r)}.${rest?` Diese Form passt noch zu ${rest===1?'einem weiteren Kasus':rest+' weiteren Kasus'}.`:''}</div>`;
+     K1.render();K1.hud();
+     if(R.cards.every(c=>c.used)){document.getElementById('fb').innerHTML=`<div class="fb ok"><b class="big">Runde geschafft!</b></div>`;timers.push(setTimeout(K1.next,1100));}
+   }else{
+     s.miss++;s.streak=0;s.score=Math.max(0,s.score-3);
+     s.fb=`<div class="fb bad">${card.text} passt nicht zu „${esc(box.ger)}“. Frage dich: <i>${CASES[card.r.c].q}</i>${card.r.num==='Pl'?' – und denk an den Plural.':''}</div>`;
+     const ci=s.sel;K1.render();K1.hud();
+     view.querySelector(`[data-b="${bi}"]`).classList.add('wrong');const c=view.querySelector(`[data-c="${ci}"]`);if(c)c.classList.add('wrong');
+   }
+ },
+ end(){
+   clearTimers();const s=K1.st;const pct=s.hits/(s.hits+s.miss||1);const sec=Math.floor((Date.now()-s.t0)/1000);
+   document.getElementById('hud').innerHTML=pill('Punkte',s.score);
+   document.getElementById('stage').innerHTML=resultPanel(pct,'Kasus-Paare geprüft',[`${s.score} Punkte in ${Math.floor(sec/60)}:${String(sec%60).padStart(2,'0')} min · ${s.miss} Fehlversuche.`,bestLine('k1-best',s.score)],'Neue Runden');
+   document.getElementById('again').onclick=K1.start;
+ }
+};
+
+/* ===================== Spiel 2: Kasus-Baukasten ===================== */
+const K2={
+ start(){
+   K2.st={i:0,n:6,score:0,slotsTotal:0,slotsFirst:0,mode:K2.st?K2.st.mode:'chips'};
+   view.innerHTML=shell({kind:'Kasus · Bilden',title:'Kasus-Baukasten',settings:settingsKasus(),cheat:cheatKasus()});
+   bindSettings(K2.start);K2.next();
+ },
+ hud(){const s=K2.st;document.getElementById('hud').innerHTML=pill('Wort',Math.min(s.i,s.n)+'/'+s.n)+pill('Punkte',s.score);},
+ next(){
+   const s=K2.st;if(s.i>=s.n)return K2.end();s.i++;
+   let n,g=0;do{n=pick(NOUNS);g++;}while(n===s.lastNoun&&g<20);s.lastNoun=n;
+   // drei Bestimmungen, ohne Nominativ Singular (der steht schon da)
+   const dets=shuffle(readingsFor(n).filter(r=>!(r.c===0&&r.num==='Sg'))).reduce((a,r)=>{if(a.length<3&&!(r.c===4&&a.some(x=>x.c===4)))a.push(r);return a;},[]).sort((a,b)=>(a.num==='Pl')-(b.num==='Pl')||a.c-b.c);
+   s.task={noun:n,dets};setCheat(n);
+   s.slots=dets.map(()=>({sel:{p:'—',a:'—',w:null},text:'',state:null}));
+   s.active=0;s.tries=0;s.solved=false;s.fb='';
+   K2.render();K2.hud();
+ },
+ builtOf(sl){return K2.st.mode==='chips'?[sl.sel.p,sl.sel.a,sl.sel.w].filter(x=>x&&x!=='—').join(' '):sl.text.trim().replace(/[!.]+$/,'').replace(/\s+/g,' ');},
+ render(){
+   const s=K2.st,t=s.task,n=t.noun;
+   const label=i=>detLabel(t.dets[i]);
+   const rows=s.slots.map((sl,i)=>{const b=K2.builtOf(sl);const cls=sl.state==='ok'?'ok':sl.state==='bad'?'bad':(s.mode==='chips'&&i===s.active&&!s.solved?'active':'');
+     const val=s.mode==='chips'?`<span class="sv">${b?esc(b):'<span class="ph">'+(i===s.active?'Bausteine unten antippen …':'antippen zum Bearbeiten')+'</span>'}</span>`
+       :`<span><label for="k2t${i}" class="sr">${label(i)}</label><input id="k2t${i}" data-ti="${i}" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="deutsche Form" value="${esc(sl.text)}" ${s.solved||sl.state==='ok'?'disabled':''}></span>`;
+     return s.mode==='chips'?`<button class="srow ${cls}" data-s="${i}" ${s.solved||sl.state==='ok'?'disabled':''}><span class="sl">${label(i)}</span>${val}</button>`
+       :`<div class="srow ${cls}"><span class="sl">${label(i)}</span>${val}</div>`;}).join('');
+   const sl=s.slots[s.active];
+   const preps=['—'].concat(KS.abl?['mit','von','durch']:[]);
+   const arts=['—','der','die','das','des','dem','den'];
+   const words=[...new Set(n.n.Sg.concat(n.n.Pl))];
+   const chipRow=(lab,key,opts)=>`<div class="row"><div class="rl">${lab}</div><div class="chips">${opts.map(o=>`<button class="chip" data-k="${key}" data-v="${esc(o)}" aria-pressed="${sl.sel[key]===o}">${o==='—'?'ohne':esc(o)}</button>`).join('')}</div></div>`;
+   const builder=s.solved?'':s.mode==='chips'?(preps.length>1?chipRow('Präposition','p',preps):'')+chipRow('Artikel','a',arts)+chipRow('Substantiv','w',words)
+     :'';
+   document.getElementById('stage').innerHTML=`<div class="panel">
+     <div class="modeswitch"><button class="btn ${s.mode==='chips'?'':'ghost'}" data-mode="chips">Bausteine</button><button class="btn ${s.mode==='text'?'':'ghost'}" data-mode="text">Selbst schreiben</button></div>
+     <div class="prompt"><span class="bigform">${esc(n.art.Sg[0]+' '+n.n.Sg[0])}</span><span class="tag">${GENUS[n.art.Sg[0]]}</span></div>
+     <div class="lemma">Plural: die ${esc(n.n.Pl[0])}</div>
+     <p class="task-intro">Bilde die verlangten Formen.</p>
+     <div class="slots">${rows}</div>${builder}
+     <div class="actions">${s.solved?`<button class="btn" id="next">${s.i>=s.n?'Zum Ergebnis':'Nächstes Wort'}</button>`:`<button class="btn" id="check">Prüfen</button><button class="btn ghost" id="hint">Tipp</button>`}</div>
+     <div id="fb">${s.fb}</div></div>`;
+   view.querySelectorAll('[data-s]').forEach(b=>b.onclick=()=>{s.active=+b.dataset.s;K2.render();});
+   view.querySelectorAll('[data-k]').forEach(c=>c.onclick=()=>{sl.sel[c.dataset.k]=c.dataset.v;sl.state=null;
+     if(c.dataset.k==='w'){const nx=s.slots.findIndex((x,j)=>j>s.active&&x.state!=='ok'&&!x.sel.w);if(nx>-1)s.active=nx;}
+     K2.render();});
+   view.querySelectorAll('[data-mode]').forEach(c=>c.onclick=()=>{if(s.solved)return;s.mode=c.dataset.mode;K2.render();});
+   let lastInp=null;
+   view.querySelectorAll('[data-ti]').forEach(inp=>{inp.oninput=()=>{s.slots[+inp.dataset.ti].text=inp.value;};inp.onfocus=()=>{lastInp=inp;};inp.onkeydown=e=>{if(e.key==='Enter')K2.check();};});
+   const firstOpen=view.querySelector('[data-ti]:not([disabled])');if(firstOpen&&!s.solved){firstOpen.focus();lastInp=firstOpen;}
+   view.querySelectorAll('[data-u]').forEach(u=>u.onmousedown=e=>e.preventDefault());
+   view.querySelectorAll('[data-u]').forEach(u=>u.onclick=()=>{const i=lastInp;if(!i)return;const p=i.selectionStart??i.value.length;i.value=i.value.slice(0,p)+u.dataset.u+i.value.slice(i.selectionEnd??p);s.slots[+i.dataset.ti].text=i.value;i.focus();i.setSelectionRange(p+1,p+1);});
+   const c=document.getElementById('check');if(c)c.onclick=K2.check;
+   const h=document.getElementById('hint');if(h)h.onclick=K2.hint;
+   const nx=document.getElementById('next');if(nx){nx.onclick=K2.next;nx.focus();}
+ },
+ rule(r){
+   const A=r.noun.art[r.num];
+   if(r.c===4)return `${detLabel(r)}: <i>mit/von</i> + Dativ oder <i>durch</i> + Akkusativ.`;
+   return `${detLabel(r)}: Frage <i>${CASES[r.c].q}</i> – Artikel <b>${A[r.c]}</b>.${r.c===2&&r.num==='Pl'?' Dativ Plural endet auf -n.':''}`;
+ },
+ hint(){const s=K2.st;s.fb=`<div class="fb info">${s.task.dets.map(K2.rule).join('<br>')}</div>`;K2.render();},
+ check(){
+   const s=K2.st,t=s.task,built=s.slots.map(K2.builtOf);
+   if(built.some(b=>!b)){s.fb=`<div class="fb info">Fülle zuerst alle Zeilen aus.</div>`;return K2.render();}
+   const okL=(b,r)=>gerVariants(r).some(v=>v.toLowerCase()===b.toLowerCase());
+   s.slots.forEach((sl,i)=>{if(sl.state==='ok')return;sl.state=okL(built[i],t.dets[i])?'ok':'bad';});
+   const wrong=s.slots.filter(x=>x.state==='bad');
+   const capNote=built.some((b,i)=>okL(b,t.dets[i])&&!gerVariants(t.dets[i]).includes(b))?'<br>Achte auf die Großschreibung: Substantive schreibt man groß.':'';
+   if(!wrong.length){
+     s.solved=true;const pts=s.slots.length*(s.tries===0?5:3);s.score+=pts;
+     s.slotsTotal+=s.slots.length;if(s.tries===0)s.slotsFirst+=s.slots.length;
+     // Mehrdeutigkeit bewusst machen
+     const amb=t.dets.filter(r=>r.c<4).map(r=>{const g=gerCanon(r);const o=readingsFor(t.noun).filter(x=>(x.c!==r.c||x.num!==r.num)&&x.c<4&&gerCanon(x)===g).map(detLabel);return o.length?`„${esc(g)}“ kann auch ${joinOr(o)} sein.`:'';}).filter(Boolean);
+     const extra=t.dets.filter(r=>r.c===4).map(r=>`${detLabel(r)} auch möglich: ${gerVariants(r).map(esc).join(' · ')}`);
+     const rare=built.filter(b=>RARE.has(b)).map(b=>`„${esc(b)}“ ist richtig, aber selten. Üblich ist „${esc(b.replace('Herren','Herrn'))}“.`);
+     s.fb=`<div class="fb ok"><b class="big">Alles richtig! +${pts}</b>${extra.length?'<br>'+extra.join('<br>'):''}${rare.length?'<br>'+rare.join(' '):''}${amb.length?'<br><b>Achtung, mehrdeutig:</b> '+amb.join(' '):''}${capNote}</div>`;
+   }else{
+     s.tries++;
+     const why=wrong.map(sl=>{const i=s.slots.indexOf(sl);const b=K2.builtOf(sl);const alt=readingsFor(t.noun).filter(r=>okL(b,r)).map(detLabel);
+       return `${detLabel(t.dets[i])}: „${esc(b)}“ ${alt.length?'ist '+joinOr(alt):'gibt es so im Deutschen nicht'}.`;});
+     if(s.tries>=2){
+       s.solved=true;s.slotsTotal+=s.slots.length;
+       const got=s.slots.filter(x=>x.state==='ok').length;s.score+=got*2;
+       s.fb=`<div class="fb bad">${why.join('<br>')}<br><b>Lösung:</b><ul>${t.dets.map(r=>`<li>${detLabel(r)}: <b>${gerVariants(r).map(esc).join(' · ')}</b></li>`).join('')}</ul></div>`;
+     }else{
+       s.fb=`<div class="fb bad">${why.join('<br>')}<br>${wrong.length<s.slots.length?'Die grünen Zeilen stimmen schon. ':''}Versuch es noch einmal.<br>${wrong.map(sl=>K2.rule(t.dets[s.slots.indexOf(sl)])).join('<br>')}${capNote}</div>`;
+       const fi=s.slots.findIndex(x=>x.state!=='ok');if(fi>-1)s.active=fi;
+     }
+   }
+   K2.render();K2.hud();
+ },
+ end(){
+   const s=K2.st;const pct=s.slotsFirst/(s.slotsTotal||1);
+   document.getElementById('hud').innerHTML=pill('Punkte',s.score);
+   document.getElementById('stage').innerHTML=resultPanel(pct,'Kasus-Baukasten geprüft',[`${s.slotsFirst} von ${s.slotsTotal} Formen beim ersten Versuch richtig · ${s.score} Punkte.`,bestLine('k2-best',s.score)],'Neue Wörter');
+   document.getElementById('again').onclick=K2.start;
+ }
+};
+/* ===================== Spiel 3: Zeitrennen ===================== */
+const T1={
+ start(){
+   clearTimers();
+   view.innerHTML=shell({kind:'Tempora · Zuordnen',title:'Zeitrennen',settings:settingsTempus(S1,'rennen-v2',6),cheat:cheatTempus(true)});
+   bindSettings(T1.start,S1,'rennen-v2');
+   const b=best('t1-best');
+   document.getElementById('stage').innerHTML=`<div class="panel startbox"><p class="task-intro" style="margin:0">Eine deutsche Verbform erscheint. Tippe so schnell wie möglich die richtige Zeit an${S1.pas?' – und ob die Form <b>Aktiv</b> oder <b>Passiv</b> ist':''}. Jede richtige Antwort bringt 10 Punkte, Serien bringen Bonus.</p>
+   <div class="actions" style="margin:0"><button class="btn" id="race">Zeitrennen · 60 Sekunden</button><button class="btn ghost" id="calm">In Ruhe · 15 Formen</button></div>
+   ${b?`<p style="margin:0;color:var(--muted)">Bestwert im Zeitrennen auf diesem Gerät: <b>${b}</b> Punkte</p>`:''}</div>`;
+   document.getElementById('race').onclick=()=>T1.go('race');
+   document.getElementById('calm').onclick=()=>T1.go('calm');
+   T1.st=null;document.getElementById('hud').innerHTML='';
+ },
+ grp(t){
+   if(!S1.pas)return `<button class="tbtn solo" data-t="${t}" data-g="A" ${S1.t[t]?'':'disabled'}>${TENSES[t]}</button>`;
+   return `<div class="tgrp"><span class="tn">${TENSES[t]}</span><div class="tb"><button class="tbtn" data-t="${t}" data-g="A" ${S1.t[t]?'':'disabled'}>Aktiv</button><button class="tbtn" data-t="${t}" data-g="P" ${S1.t[t]?'':'disabled'}>Passiv</button></div></div>`;
+ },
+ go(mode){
+   clearTimers();
+   T1.st={mode,score:0,streak:0,hits:0,miss:0,count:0,total:15,left:60,end:Date.now()+60000,lock:false,last:null};
+   document.getElementById('stage').innerHTML=`<div class="panel">${mode==='race'?'<div class="timebar" id="tb"><i style="width:100%"></i></div>':''}
+     <div class="formcard" id="fc" aria-live="polite"><div class="f" id="ff"></div><div class="s" id="fs"></div></div>
+     <div class="zones">
+       <div class="zone past"><div class="zl">Vergangenheit</div><div class="zb">${[3,1,2].map(T1.grp).join('')}</div></div>
+       <div class="zone now"><div class="zl">Gegenwart</div><div class="zb">${T1.grp(0)}</div></div>
+       <div class="zone fut"><div class="zl">Zukunft</div><div class="zb">${[4,5].map(T1.grp).join('')}</div></div>
+     </div><div id="fb"></div></div>`;
+   view.querySelectorAll('[data-t]').forEach(b=>b.onclick=()=>T1.answer(+b.dataset.t,b.dataset.g));
+   if(mode==='race')timers.push(setInterval(T1.tick,100));
+   T1.next();
+ },
+ tick(){const s=T1.st;const ms=Math.max(0,s.end-Date.now());const tb=document.getElementById('tb');if(tb){tb.firstChild.style.width=(ms/600)+'%';tb.classList.toggle('low',ms<10000);}s.left=Math.ceil(ms/1000);T1.hud();if(ms<=0)T1.end();},
+ hud(){const s=T1.st;document.getElementById('hud').innerHTML=(s.mode==='race'?pill('Zeit',s.left+' s'):pill('Form',Math.min(s.count,s.total)+'/'+s.total))+pill('Punkte',s.score)+pill('Serie',s.streak);},
+ next(){
+   const s=T1.st;if(s.mode==='calm'&&s.count>=s.total)return T1.end();
+   const ts=TENSES.map((_,i)=>i).filter(i=>S1.t[i]);let v,t,p,g,k=0;
+   do{g=S1.pas&&Math.random()<.45?'P':'A';v=pick(g==='P'?VERBS.filter(x=>x.trans):VERBS);t=pick(ts);p=Math.floor(Math.random()*6);k++;}
+   while(s.last&&s.last.t===t&&s.last.g===g&&k<30);
+   s.cur={v,t,p,g,text:pron(p)+' '+conj(v,t,p,g)};s.last=s.cur;s.count++;s.lock=false;
+   document.getElementById('fc').className='formcard';
+   document.getElementById('ff').textContent=s.cur.text;document.getElementById('fs').textContent=`Infinitiv: ${v.inf}`;
+   T1.hud();
+ },
+ answer(t,g){
+   const s=T1.st;if(s.lock)return;s.lock=true;const c=s.cur,fc=document.getElementById('fc'),fb=document.getElementById('fb');
+   const okT=t===c.t,okG=!S1.pas||g===c.g;
+   if(okT&&okG){s.hits++;s.streak++;s.score+=10+Math.min(s.streak-1,5)*2;fc.className='formcard ok';fb.innerHTML='';timers.push(setTimeout(T1.next,350));}
+   else{s.miss++;s.streak=0;s.score=Math.max(0,s.score-5);fc.className='formcard bad';
+     const name=TENSES[c.t]+(S1.pas?' '+GN[c.g]:'');
+     const said=TENSES[t]+(S1.pas?' '+GN[g]:'');
+     fb.innerHTML=`<div class="fb bad">„${esc(c.text)}“ ist <b>${name}</b>, nicht ${said}. Bauplan: ${RULE[c.g][c.t]}.</div>`;
+     timers.push(setTimeout(()=>{fb.innerHTML='';T1.next();},2300));}
+   T1.hud();
+ },
+ end(){
+   clearTimers();const s=T1.st;const pct=s.hits/(s.hits+s.miss||1);
+   const extra=s.mode==='race'?bestLine('t1-best',s.score):'';
+   document.getElementById('hud').innerHTML=pill('Punkte',s.score);
+   document.getElementById('stage').innerHTML=resultPanel(pct,'Zeitrennen geprüft',[`${s.hits} richtig, ${s.miss} falsch · ${s.score} Punkte.`,extra].filter(Boolean),'Noch einmal');
+   document.getElementById('again').onclick=()=>T1.go(s.mode);
+ }
+};
+
+/* ===================== Spiel 4: Zeitverwandler ===================== */
+const T2={
+ start(){
+   T2.st={i:0,n:10,score:0,firstTry:0};
+   view.innerHTML=shell({kind:'Tempora · Bilden',title:'Zeitverwandler',settings:settingsTempus(S2,'wandler-v2',5),cheat:cheatTempus(false)});
+   bindSettings(T2.start,S2,'wandler-v2');T2.next();
+ },
+ hud(){const s=T2.st;document.getElementById('hud').innerHTML=pill('Aufgabe',Math.min(s.i,s.n)+'/'+s.n)+pill('Punkte',s.score);},
+ target(){
+   const ts=[0,1,2,3,4].filter(i=>S2.t[i]);
+   if(S2.plq&&S2.t[3]&&Math.random()<.45)return 3;
+   const others=ts.filter(i=>i!==3);return others.length?pick(others):pick(ts);
+ },
+ next(){
+   const s=T2.st;if(s.i>=s.n)return T2.end();s.i++;
+   const g=S2.pas&&Math.random()<.4?'P':'A';
+   const v=pick(g==='P'?VERBS.filter(x=>x.trans):VERBS),p=Math.floor(Math.random()*6);
+   const tg=T2.target();const src=pick([0,1,2,3,4].filter(x=>x!==tg));
+   s.task={v,p,g,pr:pron(p),src,tg};s.tries=0;s.solved=false;s.text='';s.fb='';
+   T2.render();T2.hud();
+ },
+ norm(x){x=x.toLowerCase().trim().replace(/[.!?,]+$/,'').replace(/\s+/g,' ');for(const q of ['ich','du','er','sie','es','wir','ihr'])if(x.startsWith(q+' ')){x=x.slice(q.length+1);break;}return x;},
+ render(){
+   const s=T2.st,k=s.task;
+   document.getElementById('stage').innerHTML=`<div class="panel"><p class="task-intro">Setze die Verbform in die verlangte Zeit. Person, Zahl und ${k.g==='P'?'<b>Passiv</b>':'Aktiv'} bleiben gleich.</p>
+   <div class="transform"><span class="src">${k.pr} ${conj(k.v,k.src,k.p,k.g)}</span><span class="tag" style="background:var(--sunk)">${TENSES[k.src]} ${GN[k.g]}</span><span class="arrow" aria-hidden="true">→</span><span class="tag">${TENSES[k.tg]} ${GN[k.g]}</span></div>
+   <div class="lemma">Infinitiv: ${k.v.inf}</div>
+   <div class="textin"><span class="pre">${k.pr}</span><label for="t2in" class="sr">Verbform</label><input id="t2in" autocomplete="off" autocapitalize="off" spellcheck="false" value="${esc(s.text)}" ${s.solved?'disabled':''} placeholder="…"></div>
+   <div class="actions">${s.solved?`<button class="btn" id="next">${s.i>=s.n?'Zum Ergebnis':'Nächste Form'}</button>`:`<button class="btn" id="check">Prüfen</button><button class="btn ghost" id="hint">Bauplan zeigen</button>`}</div>
+   <div id="fb">${s.fb}</div></div>`;
+   const inp=document.getElementById('t2in');inp.oninput=()=>{s.text=inp.value;};inp.onkeydown=e=>{if(e.key==='Enter'&&!s.solved)T2.check();};if(!s.solved)inp.focus();
+   view.querySelectorAll('[data-u]').forEach(u=>{u.onmousedown=e=>e.preventDefault();u.onclick=()=>{const p=inp.selectionStart??inp.value.length;inp.value=inp.value.slice(0,p)+u.dataset.u+inp.value.slice(inp.selectionEnd??p);s.text=inp.value;inp.focus();inp.setSelectionRange(p+1,p+1);};});
+   const c=document.getElementById('check');if(c)c.onclick=T2.check;
+   const h=document.getElementById('hint');if(h)h.onclick=()=>{s.fb=`<div class="fb info"><b>${TENSES[k.tg]} ${GN[k.g]}:</b> ${RULE[k.g][k.tg]}.${k.g==='A'&&(k.tg===2||k.tg===3)?`<br>${k.v.inf} bildet diese Zeit mit <b>${k.v.sein?'sein':'haben'}</b>.`:''}${k.g==='P'?`<br>Partizip II von ${k.v.inf}: <b>${k.v.p2}</b>`:''}</div>`;T2.render();};
+   const nx=document.getElementById('next');if(nx){nx.onclick=T2.next;nx.focus();}
+ },
+ diagnose(a){
+   const k=T2.st.task,L=x=>x.toLowerCase();
+   if(k.g==='P'&&(k.tg===2||k.tg===3)){
+     if(a===L(conj(k.v,k.tg,k.p,'P',false,true)))return 'Fast! Im Passiv heißt es <b>worden</b>, nicht „geworden“.';
+     if(a===L(conj(k.v,k.tg,k.p,'P',true))||a===L(conj(k.v,k.tg,k.p,'P',true,true)))return `Das Passiv bildet ${TENSES[k.tg]} immer mit <b>sein</b> + Partizip II + worden.`;
+   }
+   if(k.g==='A'&&(k.tg===2||k.tg===3)&&a===L(conj(k.v,k.tg,k.p,'A',true)))return `Fast! <b>${k.v.inf}</b> bildet das ${TENSES[k.tg]} mit <b>${k.v.sein?'sein':'haben'}</b>.`;
+   for(const g of ['A','P']){if(g==='P'&&!k.v.trans)continue;for(let t=0;t<6;t++){if(t===k.tg&&g===k.g)continue;if(a===L(conj(k.v,t,k.p,g)))return `Das ist <b>${TENSES[t]} ${GN[g]}</b>. Gesucht ist ${TENSES[k.tg]} ${GN[k.g]}.`;}}
+   for(let p=0;p<6;p++)if(p!==k.p&&a===L(conj(k.v,k.tg,p,k.g)))return `Die Zeit stimmt, aber das ist die ${PERS[p]}. Gesucht ist die ${PERS[k.p]}.`;
+   return `Das stimmt noch nicht. Bauplan ${TENSES[k.tg]} ${GN[k.g]}: ${RULE[k.g][k.tg]}.`;
+ },
+ check(){
+   const s=T2.st,k=s.task,a=T2.norm(s.text);
+   if(!a){s.fb=`<div class="fb info">Schreibe zuerst eine Verbform.</div>`;return T2.render();}
+   const right=conj(k.v,k.tg,k.p,k.g);
+   if(a===right.toLowerCase()){
+     s.solved=true;const pts=s.tries===0?10:5;s.score+=pts;if(s.tries===0)s.firstTry++;
+     s.fb=`<div class="fb ok"><b class="big">Richtig! +${pts}</b> ${k.pr} <b>${right}</b> (${TENSES[k.tg]} ${GN[k.g]})</div>`;
+   }else{
+     s.tries++;const why=T2.diagnose(a);
+     if(s.tries>=2){s.solved=true;s.fb=`<div class="fb bad">${why}<br>Lösung: ${k.pr} <b>${right}</b></div>`;}
+     else s.fb=`<div class="fb bad">${why} Versuch es noch einmal.</div>`;
+   }
+   T2.render();T2.hud();
+ },
+ end(){
+   const s=T2.st;const pct=s.firstTry/s.n;
+   document.getElementById('hud').innerHTML=pill('Punkte',s.score);
+   document.getElementById('stage').innerHTML=resultPanel(pct,'Zeitverwandler geprüft',[`${s.firstTry} von ${s.n} Formen beim ersten Versuch richtig · ${s.score} Punkte.`,bestLine('t2-best',s.score)],'Neue 10 Formen');
+   document.getElementById('again').onclick=T2.start;
+ }
+};
+
+/* ===================== Startseite & Navigation ===================== */
+function home(){
+  const b=k=>{const v=best(k);return v?`<span class="best">Bestwert: ${v} Punkte</span>`:'';};
+  view.innerHTML=`<section class="intro"><h1>Lateinische Formen sicher ins Deutsche bringen</h1>
+  <p>Vier Prüfstationen: zuerst zuordnen, dann selbst bilden. Wer eine Runde schafft, bekommt eine Prüfplakette in Bronze, Silber oder Gold.</p></section>
+  <div class="stations">
+   <section class="station"><h2>Station 1 · Kasus</h2><p>Ganz auf Deutsch: die richtige Form mit Artikel, Endung und Präposition. Viele deutsche Formen passen zu mehreren Kasus – dann zählen alle.</p>
+    <div class="games">
+     <button class="gamecard" data-go="kasus-paare"><span class="kind">Zuordnen</span><strong>Kasus-Paare</strong><span class="d">Ein Wort pro Runde: Welche Kasus passen zu „den Sklaven“? Akkusativ Singular und Dativ Plural – finde alle.</span>${b('k1-best')}</button>
+     <button class="gamecard" data-go="kasus-bau"><span class="kind">Bilden</span><strong>Kasus-Baukasten</strong><span class="d">Bilde zu „der Mensch“ den Genitiv Singular, Dativ Plural … aus Bausteinen oder selbst geschrieben.</span>${b('k2-best')}</button>
+    </div></section>
+   <section class="station"><h2>Station 2 · Tempora im Indikativ</h2><p>Deutsche Zeiten im Aktiv und Passiv, mit starken Verben und Verben mit „sein“.</p>
+    <div class="games">
+     <button class="gamecard" data-go="zeit-rennen"><span class="kind">Zuordnen</span><strong>Zeitrennen</strong><span class="d">„er wird gerufen“ oder „er wird rufen“? Zeit und Aktiv/Passiv erkennen, alle sechs Zeiten.</span>${b('t1-best')}</button>
+     <button class="gamecard" data-go="zeit-wandler"><span class="kind">Bilden</span><strong>Zeitverwandler</strong><span class="d">Formen selbst bilden, im Aktiv und Passiv, mit Schwerpunkt Plusquamperfekt.</span>${b('t2-best')}</button>
+    </div></section>
+  </div>`;
+  document.getElementById('hud');
+}
+const ROUTES={'start':home,'kasus-paare':K1.start,'kasus-bau':K2.start,'zeit-rennen':T1.start,'zeit-wandler':T2.start};
+function route(){
+  clearTimers();
+  const h=(location.hash||'').slice(1);const r=ROUTES[h]?h:'start';
+  document.querySelectorAll('.nav button').forEach(b=>b.setAttribute('aria-current',b.dataset.go===r?'page':'false'));
+  ROUTES[r]();window.scrollTo(0,0);
+}
+document.addEventListener('click',e=>{const g=e.target.closest('[data-go]');if(!g)return;const t=g.dataset.go;if(location.hash.slice(1)===t||(t==='start'&&!location.hash))route();else location.hash=t;});
+window.addEventListener('hashchange',route);
+route();
+</script>
+</body>
+</html>
